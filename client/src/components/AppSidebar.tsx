@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Upload, FolderTree, Settings, Sparkles, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Link } from "wouter";
 
 const menuItems = [
   {
@@ -64,13 +65,10 @@ export default function AppSidebar({ activeItem = "Dashboard" }: AppSidebarProps
                     isActive={item.title === activeItem}
                     data-testid={`sidebar-${item.title.toLowerCase().replace(' ', '-')}`}
                   >
-                    <a href={item.url} onClick={(e) => {
-                      e.preventDefault();
-                      console.log(`Navigate to ${item.title}`);
-                    }}>
+                    <Link href={item.url}>
                       <item.icon className="w-4 h-4" />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
