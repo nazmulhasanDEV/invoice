@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -100,9 +101,9 @@ export default function AuthModal({ open, onOpenChange, defaultTab = "login" }: 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
         {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-primary via-primary/90 to-accent p-8 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-primary via-primary/90 to-accent p-6 sm:p-8 text-white relative overflow-hidden flex-shrink-0">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
           <div className="relative">
             <div className="flex items-center gap-3 mb-3">
@@ -120,9 +121,10 @@ export default function AuthModal({ open, onOpenChange, defaultTab = "login" }: 
           </div>
         </div>
 
-        <div className="p-8">
-          {/* Demo Mode Alert */}
-          <Alert className="mb-6 bg-accent/10 border-accent/30">
+        <ScrollArea className="flex-1 overflow-y-auto">
+          <div className="p-6 sm:p-8">
+            {/* Demo Mode Alert */}
+            <Alert className="mb-6 bg-accent/10 border-accent/30">
             <Zap className="w-4 h-4 text-accent" />
             <AlertDescription className="text-sm">
               <span className="font-semibold">No login required!</span> Try our full-featured demo instantly—no credit card, no commitment.
@@ -208,9 +210,9 @@ export default function AuthModal({ open, onOpenChange, defaultTab = "login" }: 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="login-password">Password</Label>
-                    <Button variant="link" className="px-0 h-auto text-xs">
+                    <button type="button" className="text-xs text-primary hover-elevate px-0">
                       Forgot password?
-                    </Button>
+                    </button>
                   </div>
                   <Input
                     id="login-password"
@@ -416,7 +418,8 @@ export default function AuthModal({ open, onOpenChange, defaultTab = "login" }: 
               </form>
             </TabsContent>
           </Tabs>
-        </div>
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
