@@ -66,7 +66,7 @@ export default function Hero() {
         </h1>
 
         <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12">
-          Automate invoice data extraction, categorize items intelligently, track price trends, and gain actionable insights—all powered by advanced AI technology.
+          Perfect for individuals and businesses. Automate invoice data extraction, categorize items intelligently, track price trends, and gain actionable insights—all powered by advanced AI.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4">

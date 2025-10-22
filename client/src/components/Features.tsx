@@ -44,7 +44,7 @@ export default function Features() {
             <span className="bg-gradient-to-r from-chart-1 to-chart-2 bg-clip-text text-transparent"> Streamline Invoices</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Powerful features designed to save time, reduce errors, and provide actionable insights.
+            Built for individuals, freelancers, and businesses of all sizes. Save time, reduce errors, and gain actionable insights.
           </p>
         </div>
 
