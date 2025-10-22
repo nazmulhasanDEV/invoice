@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileDown, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 import PriceChart from "./PriceChart";
 import SeasonalInsights from "./SeasonalInsights";
+import VendorAnalysis from "./VendorAnalysis";
 
 const mockPurchaseHistory = [
   { date: "2024-12-15", vendor: "Fresh Farm Co", quantity: 50, unit: "kg", unitPrice: 2.5, total: 125 },
@@ -100,33 +101,9 @@ export default function CategoryDetail({ categoryName = "Tomatoes", onBack }: Ca
 
       <PriceChart title="Price Fluctuation Analysis" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SeasonalInsights />
-
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Vendor Analysis</h3>
-          <div className="space-y-3">
-            {vendorAnalysis.map((vendor, index) => (
-              <div 
-                key={index} 
-                className="flex items-center justify-between p-3 rounded-md bg-muted/30 hover-elevate"
-                data-testid={`vendor-${index}`}
-              >
-                <div className="flex-1">
-                  <div className="font-medium">{vendor.vendor}</div>
-                  <div className="text-xs text-muted-foreground">{vendor.purchases} purchases</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">${vendor.avgPrice.toFixed(2)}/unit</div>
-                  <div className="text-xs text-muted-foreground">${vendor.totalSpent} total</div>
-                </div>
-                {index === 0 && (
-                  <Badge className="ml-2 bg-chart-3 text-background">Best Price</Badge>
-                )}
-              </div>
-            ))}
-          </div>
-        </Card>
+      <div>
+        <h2 className="text-2xl font-bold mb-4">Vendor Analysis</h2>
+        <VendorAnalysis />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
