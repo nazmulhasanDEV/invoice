@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { User, Settings as SettingsIcon, Users, CreditCard, Bell, Shield, Plus, Trash2, Mail } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { User, Settings as SettingsIcon, Users, CreditCard, Bell, Shield, Plus, Trash2, Mail, Phone, Briefcase, Building, Globe, Clock, Download, Key, Monitor, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { ROLES, type User as UserType, type TeamMember, type PaymentMethod, type BillingHistory } from "@shared/schema";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -113,10 +115,16 @@ function ProfileSettings() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    bio: "",
+    jobTitle: "",
+    company: "",
+    phone: "",
+    timezone: "",
+    language: "",
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { fullName?: string; email?: string }) => {
+    mutationFn: async (data: any) => {
       return await apiRequest("PATCH", "/api/profile", data);
     },
     onSuccess: () => {
@@ -144,58 +152,218 @@ function ProfileSettings() {
     return <div data-testid="loading-profile">Loading...</div>;
   }
 
+  const initials = user?.fullName
+    ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase()
+    : user?.username?.substring(0, 2).toUpperCase() || 'U';
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Profile Information</CardTitle>
-        <CardDescription>Update your account profile information</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={user?.username || ""}
-              disabled
-              data-testid="input-username"
-            />
-            <p className="text-sm text-muted-foreground">Username cannot be changed</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Information</CardTitle>
+          <CardDescription>Update your personal information and profile details</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center gap-6">
+            <Avatar className="w-24 h-24">
+              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+            </Avatar>
+            <div>
+              <Button variant="outline" data-testid="button-change-avatar">
+                <User className="w-4 h-4 mr-2" />
+                Change Avatar
+              </Button>
+              <p className="text-sm text-muted-foreground mt-2">JPG, GIF or PNG. Max size of 2MB</p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input
-              id="fullName"
-              placeholder="Enter your full name"
-              value={formData.fullName || user?.fullName || ""}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              data-testid="input-full-name"
-            />
-          </div>
+          <Separator />
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={formData.email || user?.email || ""}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              data-testid="input-email"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={user?.username || ""}
+                  disabled
+                  data-testid="input-username"
+                />
+                <p className="text-sm text-muted-foreground">Username cannot be changed</p>
+              </div>
 
-          <Button 
-            type="submit" 
-            disabled={updateProfileMutation.isPending}
-            data-testid="button-save-profile"
-          >
-            {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  placeholder="John Doe"
+                  value={formData.fullName || user?.fullName || ""}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  data-testid="input-full-name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    className="pl-9"
+                    value={formData.email || user?.email || ""}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    data-testid="input-email"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    className="pl-9"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    data-testid="input-phone"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="jobTitle">Job Title</Label>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="jobTitle"
+                    placeholder="Financial Manager"
+                    className="pl-9"
+                    value={formData.jobTitle}
+                    onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
+                    data-testid="input-job-title"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="company">Company</Label>
+                <div className="relative">
+                  <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="company"
+                    placeholder="Acme Inc."
+                    className="pl-9"
+                    value={formData.company}
+                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                    data-testid="input-company"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Timezone</Label>
+                <Select value={formData.timezone} onValueChange={(value) => setFormData({ ...formData, timezone: value })}>
+                  <SelectTrigger id="timezone" data-testid="select-timezone">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      <SelectValue placeholder="Select timezone" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
+                    <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
+                    <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
+                    <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
+                    <SelectItem value="Europe/London">London (GMT)</SelectItem>
+                    <SelectItem value="Europe/Paris">Paris (CET)</SelectItem>
+                    <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
+                    <SelectItem value="Asia/Dubai">Dubai (GST)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="language">Language</Label>
+                <Select value={formData.language} onValueChange={(value) => setFormData({ ...formData, language: value })}>
+                  <SelectTrigger id="language" data-testid="select-language">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4" />
+                      <SelectValue placeholder="Select language" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Spanish</SelectItem>
+                    <SelectItem value="fr">French</SelectItem>
+                    <SelectItem value="de">German</SelectItem>
+                    <SelectItem value="zh">Chinese</SelectItem>
+                    <SelectItem value="ja">Japanese</SelectItem>
+                    <SelectItem value="ar">Arabic</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                placeholder="Tell us a bit about yourself..."
+                rows={4}
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                data-testid="textarea-bio"
+              />
+              <p className="text-sm text-muted-foreground">Brief description for your profile</p>
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={updateProfileMutation.isPending}
+              data-testid="button-save-profile"
+            >
+              {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+          <CardDescription>Irreversible actions for your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" data-testid="button-delete-account">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction className="bg-destructive hover:bg-destructive/90">
+                  Delete Account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -220,6 +388,7 @@ function TeamSettings() {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>(ROLES.MEMBER);
+  const [teamName, setTeamName] = useState("");
 
   const { data: teams, isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ["/api/teams"],
@@ -235,6 +404,19 @@ function TeamSettings() {
   const { data: invitations } = useQuery<TeamInvitation[]>({
     queryKey: ["/api/teams", selectedTeamId, "invitations"],
     enabled: !!selectedTeamId,
+  });
+
+  const updateTeamMutation = useMutation({
+    mutationFn: async (data: { name: string }) => {
+      return await apiRequest("PATCH", `/api/teams/${selectedTeamId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/teams"] });
+      toast({
+        title: "Team Updated",
+        description: "Team information has been updated",
+      });
+    },
   });
 
   const inviteMutation = useMutation({
@@ -295,6 +477,41 @@ function TeamSettings() {
   return (
     <div className="space-y-6">
       <Card>
+        <CardHeader>
+          <CardTitle>Team Information</CardTitle>
+          <CardDescription>Manage your team details and settings</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-6">
+            <Avatar className="w-20 h-20">
+              <AvatarFallback className="text-xl">
+                {teams[0]?.name?.substring(0, 2).toUpperCase() || 'T'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="team-name">Team Name</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="team-name"
+                  placeholder="Team name"
+                  defaultValue={teams[0]?.name}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  data-testid="input-team-name"
+                />
+                <Button
+                  onClick={() => updateTeamMutation.mutate({ name: teamName })}
+                  disabled={!teamName || updateTeamMutation.isPending}
+                  data-testid="button-update-team"
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <CardTitle>Team Members</CardTitle>
@@ -333,16 +550,15 @@ function TeamSettings() {
                     <SelectContent>
                       <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
                       <SelectItem value={ROLES.MEMBER}>Member</SelectItem>
-                      <SelectItem value={ROLES.MANAGER}>Manager</SelectItem>
                       <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <DialogFooter>
-                <Button 
+                <Button
                   onClick={() => inviteMutation.mutate({ email: inviteEmail, role: inviteRole })}
-                  disabled={inviteMutation.isPending || !inviteEmail}
+                  disabled={!inviteEmail || inviteMutation.isPending}
                   data-testid="button-send-invite"
                 >
                   {inviteMutation.isPending ? "Sending..." : "Send Invitation"}
@@ -352,69 +568,65 @@ function TeamSettings() {
           </Dialog>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {members?.map((member) => (
-                <TableRow key={member.id} data-testid={`row-member-${member.id}`}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback>
-                          {member.user?.username?.slice(0, 2).toUpperCase() || "??"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span data-testid={`text-member-name-${member.id}`}>{member.user?.username}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell data-testid={`text-member-email-${member.id}`}>
-                    {member.user?.email || "-"}
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={member.role}
-                      onValueChange={(role) => updateRoleMutation.mutate({ memberId: member.id, role })}
-                      disabled={member.role === ROLES.OWNER}
-                    >
-                      <SelectTrigger className="w-32" data-testid={`select-member-role-${member.id}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
-                        <SelectItem value={ROLES.MEMBER}>Member</SelectItem>
-                        <SelectItem value={ROLES.MANAGER}>Manager</SelectItem>
-                        <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-                        <SelectItem value={ROLES.OWNER}>Owner</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell data-testid={`text-member-joined-${member.id}`}>
-                    {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : "-"}
-                  </TableCell>
-                  <TableCell>
-                    {member.role !== ROLES.OWNER && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeMemberMutation.mutate(member.id)}
-                        data-testid={`button-remove-member-${member.id}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </TableCell>
+          {membersLoading ? (
+            <div data-testid="loading-members">Loading members...</div>
+          ) : members && members.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {members.map((member) => (
+                  <TableRow key={member.id} data-testid={`row-member-${member.id}`}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarFallback>
+                            {member.user?.username?.substring(0, 2).toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium" data-testid={`text-member-name-${member.id}`}>
+                            {member.user?.fullName || member.user?.username || 'Unknown'}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {member.user?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={member.role === ROLES.OWNER ? "default" : "secondary"} data-testid={`badge-role-${member.id}`}>
+                        {member.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell data-testid={`text-joined-${member.id}`}>
+                      {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {member.role !== ROLES.OWNER && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeMemberMutation.mutate(member.id)}
+                          data-testid={`button-remove-member-${member.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">No team members yet</p>
+          )}
         </CardContent>
       </Card>
 
@@ -422,23 +634,26 @@ function TeamSettings() {
         <Card>
           <CardHeader>
             <CardTitle>Pending Invitations</CardTitle>
+            <CardDescription>Invitations waiting to be accepted</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {invitations.map((inv: any) => (
-                <div key={inv.id} className="flex items-center justify-between p-3 border rounded-md" data-testid={`invitation-${inv.id}`}>
+            <div className="space-y-3">
+              {invitations.map((invitation) => (
+                <div
+                  key={invitation.id}
+                  className="flex items-center justify-between p-4 border rounded-md"
+                  data-testid={`invitation-${invitation.id}`}
+                >
                   <div className="flex items-center gap-3">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
+                    <Mail className="w-5 h-5 text-muted-foreground" />
                     <div>
-                      <p className="font-medium" data-testid={`text-invitation-email-${inv.id}`}>{inv.email}</p>
+                      <p className="font-medium">{invitation.email}</p>
                       <p className="text-sm text-muted-foreground">
-                        Role: <Badge variant="secondary">{inv.role}</Badge>
+                        Invited as {invitation.role}
                       </p>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Expires {new Date(inv.expiresAt).toLocaleDateString()}
-                  </p>
+                  <Badge variant="outline">Pending</Badge>
                 </div>
               ))}
             </div>
@@ -447,6 +662,19 @@ function TeamSettings() {
       )}
     </div>
   );
+}
+
+interface NotificationPrefs {
+  emailNotifications?: boolean;
+  invoiceAlerts?: boolean;
+  seasonalAlerts?: boolean;
+  teamUpdates?: boolean;
+  billingAlerts?: boolean;
+  pushNotifications?: boolean;
+  smsNotifications?: boolean;
+  productUpdates?: boolean;
+  securityAlerts?: boolean;
+  digestFrequency?: string;
 }
 
 function BillingSettings() {
@@ -465,10 +693,12 @@ function BillingSettings() {
   const setupIntentMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/stripe/setup-intent");
-      return response.json();
+      return response as { clientSecret?: string };
     },
-    onSuccess: (data) => {
-      setSetupIntentSecret(data.clientSecret);
+    onSuccess: (data: { clientSecret?: string }) => {
+      if (data.clientSecret) {
+        setSetupIntentSecret(data.clientSecret);
+      }
     },
     onError: (error: any) => {
       toast({
@@ -512,6 +742,68 @@ function BillingSettings() {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Plan</CardTitle>
+          <CardDescription>Manage your subscription and billing preferences</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between p-6 border rounded-md">
+            <div>
+              <h3 className="text-2xl font-bold">Professional Plan</h3>
+              <p className="text-muted-foreground mt-1">Unlimited invoices and team members</p>
+              <div className="flex items-center gap-4 mt-4">
+                <Badge className="bg-green-600">Active</Badge>
+                <span className="text-sm text-muted-foreground">Renews on Jan 1, 2026</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-bold">$29</p>
+              <p className="text-muted-foreground">per month</p>
+              <Button variant="outline" className="mt-4">
+                Change Plan
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Usage & Limits</CardTitle>
+          <CardDescription>Track your current usage against plan limits</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium">Invoices Processed</span>
+              <span className="text-sm text-muted-foreground">247 / Unlimited</span>
+            </div>
+            <div className="h-2 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-primary w-1/4"></div>
+            </div>
+          </div>
+          <div>
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium">Team Members</span>
+              <span className="text-sm text-muted-foreground">5 / Unlimited</span>
+            </div>
+            <div className="h-2 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-primary w-1/5"></div>
+            </div>
+          </div>
+          <div>
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium">Storage Used</span>
+              <span className="text-sm text-muted-foreground">2.4 GB / 100 GB</span>
+            </div>
+            <div className="h-2 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-primary w-[2.4%]"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
@@ -598,6 +890,55 @@ function BillingSettings() {
               No payment methods added yet
             </p>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing Address</CardTitle>
+          <CardDescription>Update your billing information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2 space-y-2">
+              <Label htmlFor="address">Street Address</Label>
+              <Input id="address" placeholder="123 Main St" data-testid="input-address" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input id="city" placeholder="New York" data-testid="input-city" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="state">State/Province</Label>
+              <Input id="state" placeholder="NY" data-testid="input-state" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="zip">ZIP / Postal Code</Label>
+              <Input id="zip" placeholder="10001" data-testid="input-zip" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Select>
+                <SelectTrigger id="country" data-testid="select-country">
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="US">United States</SelectItem>
+                  <SelectItem value="CA">Canada</SelectItem>
+                  <SelectItem value="GB">United Kingdom</SelectItem>
+                  <SelectItem value="DE">Germany</SelectItem>
+                  <SelectItem value="FR">France</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="vat">VAT Number (Optional)</Label>
+              <Input id="vat" placeholder="EU123456789" data-testid="input-vat" />
+            </div>
+          </div>
+          <Button className="mt-4" data-testid="button-save-billing-address">
+            Save Billing Address
+          </Button>
         </CardContent>
       </Card>
 
@@ -721,20 +1062,6 @@ function AddCardForm({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
-interface NotificationPrefs {
-  emailNotifications?: boolean;
-  invoiceAlerts?: boolean;
-  seasonalAlerts?: boolean;
-  teamUpdates?: boolean;
-  billingAlerts?: boolean;
-}
-
-interface SecurityPrefs {
-  twoFactorEnabled?: boolean;
-  recoveryEmail?: string | null;
-  sessionTimeout?: number;
-}
-
 function NotificationSettings() {
   const { toast } = useToast();
 
@@ -764,82 +1091,196 @@ function NotificationSettings() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Notification Preferences</CardTitle>
-        <CardDescription>Manage how you receive notifications</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Email Notifications</p>
-            <p className="text-sm text-muted-foreground">Receive general email notifications</p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Email Notifications</CardTitle>
+          <CardDescription>Configure which emails you want to receive</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Email Notifications</p>
+              <p className="text-sm text-muted-foreground">Receive general email notifications</p>
+            </div>
+            <Switch
+              checked={preferences?.emailNotifications ?? true}
+              onCheckedChange={(checked) => toggleSetting("emailNotifications", checked)}
+              data-testid="switch-email-notifications"
+            />
           </div>
-          <Switch
-            checked={preferences?.emailNotifications ?? true}
-            onCheckedChange={(checked) => toggleSetting("emailNotifications", checked)}
-            data-testid="switch-email-notifications"
-          />
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Invoice Alerts</p>
-            <p className="text-sm text-muted-foreground">Get notified about new invoices</p>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Invoice Alerts</p>
+              <p className="text-sm text-muted-foreground">Get notified about new invoices and uploads</p>
+            </div>
+            <Switch
+              checked={preferences?.invoiceAlerts ?? true}
+              onCheckedChange={(checked) => toggleSetting("invoiceAlerts", checked)}
+              data-testid="switch-invoice-alerts"
+            />
           </div>
-          <Switch
-            checked={preferences?.invoiceAlerts ?? true}
-            onCheckedChange={(checked) => toggleSetting("invoiceAlerts", checked)}
-            data-testid="switch-invoice-alerts"
-          />
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Seasonal Alerts</p>
-            <p className="text-sm text-muted-foreground">Alerts for seasonal and festival items</p>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Seasonal Alerts</p>
+              <p className="text-sm text-muted-foreground">Alerts for seasonal and festival items</p>
+            </div>
+            <Switch
+              checked={preferences?.seasonalAlerts ?? true}
+              onCheckedChange={(checked) => toggleSetting("seasonalAlerts", checked)}
+              data-testid="switch-seasonal-alerts"
+            />
           </div>
-          <Switch
-            checked={preferences?.seasonalAlerts ?? true}
-            onCheckedChange={(checked) => toggleSetting("seasonalAlerts", checked)}
-            data-testid="switch-seasonal-alerts"
-          />
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Team Updates</p>
-            <p className="text-sm text-muted-foreground">Notifications about team changes</p>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Team Updates</p>
+              <p className="text-sm text-muted-foreground">Notifications about team changes and activities</p>
+            </div>
+            <Switch
+              checked={preferences?.teamUpdates ?? true}
+              onCheckedChange={(checked) => toggleSetting("teamUpdates", checked)}
+              data-testid="switch-team-updates"
+            />
           </div>
-          <Switch
-            checked={preferences?.teamUpdates ?? true}
-            onCheckedChange={(checked) => toggleSetting("teamUpdates", checked)}
-            data-testid="switch-team-updates"
-          />
-        </div>
-        <Separator />
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Billing Alerts</p>
-            <p className="text-sm text-muted-foreground">Payment and billing notifications</p>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Billing Alerts</p>
+              <p className="text-sm text-muted-foreground">Payment and billing notifications</p>
+            </div>
+            <Switch
+              checked={preferences?.billingAlerts ?? true}
+              onCheckedChange={(checked) => toggleSetting("billingAlerts", checked)}
+              data-testid="switch-billing-alerts"
+            />
           </div>
-          <Switch
-            checked={preferences?.billingAlerts ?? true}
-            onCheckedChange={(checked) => toggleSetting("billingAlerts", checked)}
-            data-testid="switch-billing-alerts"
-          />
-        </div>
-      </CardContent>
-    </Card>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Product Updates</p>
+              <p className="text-sm text-muted-foreground">News about new features and improvements</p>
+            </div>
+            <Switch
+              checked={preferences?.productUpdates ?? false}
+              onCheckedChange={(checked) => toggleSetting("productUpdates", checked)}
+              data-testid="switch-product-updates"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Push Notifications</CardTitle>
+          <CardDescription>Manage browser and mobile push notifications</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Push Notifications</p>
+              <p className="text-sm text-muted-foreground">Enable browser push notifications</p>
+            </div>
+            <Switch
+              checked={preferences?.pushNotifications ?? false}
+              onCheckedChange={(checked) => toggleSetting("pushNotifications", checked)}
+              data-testid="switch-push-notifications"
+            />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Security Alerts</p>
+              <p className="text-sm text-muted-foreground">Important security and account notifications</p>
+            </div>
+            <Switch
+              checked={preferences?.securityAlerts ?? true}
+              onCheckedChange={(checked) => toggleSetting("securityAlerts", checked)}
+              data-testid="switch-security-alerts"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>SMS Notifications</CardTitle>
+          <CardDescription>Receive text message notifications</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">SMS Notifications</p>
+              <p className="text-sm text-muted-foreground">Receive critical alerts via SMS</p>
+            </div>
+            <Switch
+              checked={preferences?.smsNotifications ?? false}
+              onCheckedChange={(checked) => toggleSetting("smsNotifications", checked)}
+              data-testid="switch-sms-notifications"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Notification Schedule</CardTitle>
+          <CardDescription>Control when and how often you receive notifications</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="digest-frequency">Email Digest Frequency</Label>
+            <Select
+              value={preferences?.digestFrequency || "immediate"}
+              onValueChange={(value) => updateMutation.mutate({ digestFrequency: value })}
+            >
+              <SelectTrigger id="digest-frequency" data-testid="select-digest-frequency">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="immediate">Immediate</SelectItem>
+                <SelectItem value="daily">Daily Digest</SelectItem>
+                <SelectItem value="weekly">Weekly Digest</SelectItem>
+                <SelectItem value="never">Never</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
+}
+
+interface SecurityPrefs {
+  twoFactorEnabled?: boolean;
+  recoveryEmail?: string | null;
+  sessionTimeout?: number;
+}
+
+interface LoginSession {
+  id: string;
+  device: string;
+  location: string;
+  lastActive: string;
+  current: boolean;
 }
 
 function SecuritySettings() {
   const { toast } = useToast();
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const { data: settings, isLoading } = useQuery<SecurityPrefs>({
     queryKey: ["/api/security-settings"],
   });
+
+  const mockSessions: LoginSession[] = [
+    { id: "1", device: "Chrome on MacOS", location: "New York, US", lastActive: "Active now", current: true },
+    { id: "2", device: "Safari on iPhone", location: "New York, US", lastActive: "2 hours ago", current: false },
+    { id: "3", device: "Firefox on Windows", location: "Los Angeles, US", lastActive: "Yesterday", current: false },
+  ];
 
   const updateMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -854,6 +1295,23 @@ function SecuritySettings() {
     },
   });
 
+  const changePassword = () => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: "Password Changed",
+      description: "Your password has been updated successfully",
+    });
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
   if (isLoading) {
     return <div data-testid="loading-security">Loading...</div>;
   }
@@ -862,14 +1320,48 @@ function SecuritySettings() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Security Settings</CardTitle>
-          <CardDescription>Manage your account security preferences</CardDescription>
+          <CardTitle>Password</CardTitle>
+          <CardDescription>Change your account password</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="new-password">New Password</Label>
+            <Input
+              id="new-password"
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              data-testid="input-new-password"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirm Password</Label>
+            <Input
+              id="confirm-password"
+              type="password"
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              data-testid="input-confirm-password"
+            />
+          </div>
+          <Button onClick={changePassword} data-testid="button-change-password">
+            Change Password
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Two-Factor Authentication</CardTitle>
+          <CardDescription>Add an extra layer of security to your account</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Two-Factor Authentication</p>
-              <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+              <p className="text-sm text-muted-foreground">Protect your account with 2FA</p>
             </div>
             <Switch
               checked={settings?.twoFactorEnabled ?? false}
@@ -877,7 +1369,26 @@ function SecuritySettings() {
               data-testid="switch-2fa"
             />
           </div>
-          <Separator />
+          {settings?.twoFactorEnabled && (
+            <div className="p-4 bg-muted rounded-md">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                <div>
+                  <p className="font-medium">2FA is enabled</p>
+                  <p className="text-sm text-muted-foreground mt-1">Your account is protected with two-factor authentication</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recovery Options</CardTitle>
+          <CardDescription>Set up account recovery options</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="recovery-email">Recovery Email</Label>
             <div className="flex gap-2">
@@ -899,9 +1410,8 @@ function SecuritySettings() {
               </Button>
             </div>
           </div>
-          <Separator />
           <div className="space-y-2">
-            <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+            <Label htmlFor="session-timeout">Session Timeout</Label>
             <Select
               value={String(settings?.sessionTimeout || 30)}
               onValueChange={(value) => updateMutation.mutate({ sessionTimeout: parseInt(value) })}
@@ -917,6 +1427,117 @@ function SecuritySettings() {
               </SelectContent>
             </Select>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Sessions</CardTitle>
+          <CardDescription>Manage devices where you're currently signed in</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {mockSessions.map((session) => (
+              <div
+                key={session.id}
+                className="flex items-center justify-between p-4 border rounded-md"
+                data-testid={`session-${session.id}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Monitor className="w-5 h-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{session.device}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {session.location} • {session.lastActive}
+                    </p>
+                  </div>
+                  {session.current && <Badge variant="outline">Current</Badge>}
+                </div>
+                {!session.current && (
+                  <Button variant="ghost" size="sm" data-testid={`button-revoke-${session.id}`}>
+                    Revoke
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+          <Button variant="outline" className="w-full mt-4" data-testid="button-revoke-all">
+            Revoke All Other Sessions
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>API Keys</CardTitle>
+          <CardDescription>Manage API keys for integrations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 border rounded-md">
+              <div className="flex items-center gap-3">
+                <Key className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">Production API Key</p>
+                  <p className="text-sm text-muted-foreground font-mono">sk_live_••••••••••••1234</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="icon">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          <Button variant="outline" className="w-full mt-4" data-testid="button-create-api-key">
+            <Plus className="w-4 h-4 mr-2" />
+            Create New API Key
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Data & Privacy</CardTitle>
+          <CardDescription>Download your data or delete your account</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button variant="outline" className="w-full" data-testid="button-export-data">
+            <Download className="w-4 h-4 mr-2" />
+            Export All Data
+          </Button>
+          <p className="text-sm text-muted-foreground">
+            Download a copy of all your data including invoices, categories, and team information
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+          <CardDescription>Irreversible and destructive actions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" data-testid="button-delete-account-security">
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Delete Account Permanently
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your account, all team data, invoices, and remove all associated information from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction className="bg-destructive hover:bg-destructive/90">
+                  Yes, Delete My Account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
     </div>
