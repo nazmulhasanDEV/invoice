@@ -44,10 +44,12 @@ export default function Hero() {
           <span className="text-xl font-bold">InvoiceAI</span>
         </div>
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          <div className="p-2 rounded-md backdrop-blur-md bg-background/80 dark:bg-background/40 border border-border/50">
+            <ThemeToggle />
+          </div>
           <Button 
-            variant="outline" 
-            className="backdrop-blur-md bg-background/10 border"
+            variant="default"
+            className="backdrop-blur-md bg-primary/90 hover:bg-primary"
             onClick={handleLogin}
             data-testid="button-login-hero"
           >
@@ -76,7 +78,8 @@ export default function Hero() {
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Button 
             size="lg" 
-            className="bg-chart-3 hover:bg-chart-3 text-background font-semibold px-8 h-12 text-base"
+            variant="default"
+            className="font-semibold px-8 h-12 text-base"
             onClick={handleGetStarted}
             data-testid="button-get-started"
           >

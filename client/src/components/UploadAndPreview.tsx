@@ -178,7 +178,8 @@ export default function UploadAndPreview() {
 
             <Button 
               onClick={handleProcess} 
-              className="w-full bg-gradient-to-r from-chart-1 to-chart-2"
+              variant="default"
+              className="w-full"
               disabled={isProcessing}
               data-testid="button-process-ai"
             >
@@ -209,7 +210,7 @@ export default function UploadAndPreview() {
             </div>
             <Button 
               onClick={handleSaveAll}
-              className="bg-chart-3 hover:bg-chart-3 text-background"
+              variant="default"
               data-testid="button-save-all-items"
             >
               <Save className="w-4 h-4 mr-2" />

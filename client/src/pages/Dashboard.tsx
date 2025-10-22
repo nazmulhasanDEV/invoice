@@ -53,7 +53,7 @@ export default function Dashboard() {
               <ThemeToggle />
               <Button 
                 onClick={handleUploadClick}
-                className="bg-chart-3 hover:bg-chart-3 text-background"
+                variant="default"
                 data-testid="button-upload-invoice-header"
               >
                 <Upload className="w-4 h-4 mr-2" />

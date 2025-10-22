@@ -104,7 +104,7 @@ export default function CategoryManager() {
           <DialogTrigger asChild>
             <Button 
               onClick={() => handleCloseDialog()}
-              className="bg-chart-3 hover:bg-chart-3 text-background"
+              variant="default"
               data-testid="button-add-category"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -192,7 +192,8 @@ export default function CategoryManager() {
                 <Button
                   onClick={handleAddCategory}
                   disabled={!newCategoryName.trim()}
-                  className="flex-1 bg-gradient-to-r from-chart-1 to-chart-2"
+                  variant="default"
+                  className="flex-1"
                   data-testid="button-save-category"
                 >
                   {editingCategory ? "Update" : "Create"} Category

@@ -80,7 +80,7 @@ export default function AddCategoryDialog({ trigger, onAdd }: AddCategoryDialogP
       <DialogTrigger asChild>
         {trigger || (
           <Button 
-            className="bg-chart-3 hover:bg-chart-3 text-background"
+            variant="default"
             data-testid="button-add-category"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -200,7 +200,7 @@ export default function AddCategoryDialog({ trigger, onAdd }: AddCategoryDialogP
             <Button 
               onClick={handleSubmit}
               disabled={!categoryName.trim()}
-              className="bg-chart-3 hover:bg-chart-3 text-background"
+              variant="default"
               data-testid="button-save-category"
             >
               Create Category

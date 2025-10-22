@@ -76,7 +76,7 @@ export default function InvoiceUpload() {
             data-testid="input-file-upload"
           />
           <label htmlFor="file-upload">
-            <Button asChild className="bg-chart-3 hover:bg-chart-3 text-background">
+            <Button asChild variant="default">
               <span data-testid="button-browse-files">
                 <Upload className="w-4 h-4 mr-2" />
                 Browse Files
@@ -120,7 +120,8 @@ export default function InvoiceUpload() {
 
           <Button 
             onClick={handleUpload} 
-            className="w-full bg-gradient-to-r from-chart-1 to-chart-2"
+            variant="default"
+            className="w-full"
             data-testid="button-upload-process"
           >
             Process with AI

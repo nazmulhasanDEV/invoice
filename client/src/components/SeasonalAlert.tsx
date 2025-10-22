@@ -128,7 +128,7 @@ export default function SeasonalAlert() {
               Get alerts 2 weeks before seasonal peaks and festival dates to optimize your purchasing decisions.
             </p>
           </div>
-          <Button className="bg-chart-1 hover:bg-chart-1 text-background" data-testid="button-enable-notifications">
+          <Button variant="default" data-testid="button-enable-notifications">
             Enable
           </Button>
         </div>

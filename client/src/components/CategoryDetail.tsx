@@ -62,7 +62,7 @@ export default function CategoryDetail({
         </div>
         <Button 
           onClick={handleExport}
-          className="bg-chart-3 hover:bg-chart-3 text-background"
+          variant="default"
           data-testid="button-export-csv"
         >
           <FileDown className="w-4 h-4 mr-2" />

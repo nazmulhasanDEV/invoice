@@ -83,7 +83,7 @@ export default function DataPreviewTable() {
           </div>
           <Button 
             onClick={handleSaveAll}
-            className="bg-chart-3 hover:bg-chart-3 text-background"
+            variant="default"
             data-testid="button-save-all"
           >
             <Save className="w-4 h-4 mr-2" />
