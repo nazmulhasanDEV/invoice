@@ -33,6 +33,7 @@ export interface IStorage {
   
   // Team member methods
   addTeamMember(teamId: string, userId: string, role: string): Promise<TeamMember>;
+  getTeamMember(memberId: string): Promise<TeamMember | undefined>;
   getTeamMembers(teamId: string): Promise<TeamMember[]>;
   updateTeamMemberRole(memberId: string, role: string): Promise<TeamMember | undefined>;
   removeTeamMember(memberId: string): Promise<boolean>;
@@ -193,6 +194,10 @@ export class MemStorage implements IStorage {
     };
     this.teamMembers.set(id, member);
     return member;
+  }
+
+  async getTeamMember(memberId: string): Promise<TeamMember | undefined> {
+    return this.teamMembers.get(memberId);
   }
 
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {
