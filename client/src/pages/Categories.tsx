@@ -6,8 +6,10 @@ import AppSidebar from "@/components/AppSidebar";
 import CategoriesGrid from "@/components/CategoriesGrid";
 import CategoryDetail from "@/components/CategoryDetail";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Search, Grid3x3, Settings } from "lucide-react";
+import AddCategoryDialog from "@/components/AddCategoryDialog";
+import { Search, Grid3x3, Settings, Plus } from "lucide-react";
 import { SeasonType } from "@/components/SeasonalBadge";
+import { useToast } from "@/hooks/use-toast";
 
 const categorySeasons: Record<string, { season: SeasonType; festivalName?: string }> = {
   "Tomatoes": { season: "summer" },
@@ -30,6 +32,7 @@ export default function Categories() {
     festivalName?: string;
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
   
   const style = {
     "--sidebar-width": "16rem",
@@ -43,6 +46,14 @@ export default function Categories() {
 
   const handleBackToGrid = () => {
     setSelectedCategory(null);
+  };
+
+  const handleAddCategory = (category: { name: string; aliases: string[]; season: SeasonType; festivalName?: string }) => {
+    console.log("Category added:", category);
+    toast({
+      title: "Category Created",
+      description: `${category.name} has been added successfully with ${category.aliases.length} aliases.`,
+    });
   };
 
   return (
@@ -100,6 +111,7 @@ export default function Categories() {
                     <Grid3x3 className="w-4 h-4" />
                     <span>10 categories found</span>
                   </div>
+                  <AddCategoryDialog onAdd={handleAddCategory} />
                 </div>
                 
                 <CategoriesGrid onSelectCategory={handleSelectCategory} />
