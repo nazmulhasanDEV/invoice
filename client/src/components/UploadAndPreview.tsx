@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -10,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, X, Edit2, Trash2, RefreshCw, Save, Sparkles } from "lucide-react";
+import { Upload, FileText, X, Edit2, Trash2, RefreshCw, Save, Sparkles, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ExtractedItem {
@@ -39,6 +40,8 @@ export default function UploadAndPreview() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedItems, setExtractedItems] = useState<ExtractedItem[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState("");
+  const [isReExtracting, setIsReExtracting] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -90,6 +93,22 @@ export default function UploadAndPreview() {
 
   const handleDelete = (id: string) => {
     setExtractedItems(items => items.filter(item => item.id !== id));
+  };
+
+  const handleReExtract = () => {
+    if (!feedback.trim()) {
+      console.log("Please provide feedback");
+      return;
+    }
+    
+    setIsReExtracting(true);
+    console.log("Re-extracting with feedback:", feedback);
+    
+    setTimeout(() => {
+      console.log("AI re-extraction complete with feedback:", feedback);
+      setIsReExtracting(false);
+      setFeedback("");
+    }, 2000);
   };
 
   return (
@@ -196,6 +215,46 @@ export default function UploadAndPreview() {
               <Save className="w-4 h-4 mr-2" />
               Save All
             </Button>
+          </div>
+
+          <div className="mb-6 p-4 rounded-md bg-muted/30 border">
+            <div className="flex items-start gap-3">
+              <MessageSquare className="w-5 h-5 text-chart-1 mt-1 flex-shrink-0" />
+              <div className="flex-1 space-y-3">
+                <div>
+                  <h4 className="font-medium mb-1">Missing or Incorrect Data?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Describe what's missing or needs correction, and we'll re-extract the data using AI.
+                  </p>
+                </div>
+                <Textarea
+                  placeholder="Example: Missing unit for Tomatoes, incorrect price for Onions, vendor name is not extracted..."
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  className="min-h-20"
+                  data-testid="textarea-feedback"
+                />
+                <Button 
+                  onClick={handleReExtract}
+                  disabled={!feedback.trim() || isReExtracting}
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  data-testid="button-reextract-feedback"
+                >
+                  {isReExtracting ? (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
+                      Re-extracting with AI...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Re-Extract with Feedback
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
