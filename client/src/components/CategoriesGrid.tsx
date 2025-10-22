@@ -32,12 +32,18 @@ const mockCategories: Category[] = [
 
 interface CategoriesGridProps {
   onSelectCategory?: (categoryId: string, categoryName: string) => void;
+  currentPage: number;
+  itemsPerPage: number;
 }
 
-export default function CategoriesGrid({ onSelectCategory }: CategoriesGridProps) {
+export default function CategoriesGrid({ onSelectCategory, currentPage, itemsPerPage }: CategoriesGridProps) {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCategories = mockCategories.slice(startIndex, endIndex);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {mockCategories.map((category, index) => {
+      {paginatedCategories.map((category, index) => {
         const TrendIcon = category.priceChange >= 0 ? TrendingUp : TrendingDown;
         
         return (

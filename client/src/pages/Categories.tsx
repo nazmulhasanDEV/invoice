@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AppSidebar from "@/components/AppSidebar";
 import CategoriesGrid from "@/components/CategoriesGrid";
+import CategoriesTable from "@/components/CategoriesTable";
 import CategoryDetail from "@/components/CategoryDetail";
 import ThemeToggle from "@/components/ThemeToggle";
 import AddCategoryDialog from "@/components/AddCategoryDialog";
-import { Search, Grid3x3, Settings, Plus } from "lucide-react";
+import { Search, Grid3x3, Settings, Plus, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { SeasonType } from "@/components/SeasonalBadge";
 import { useToast } from "@/hooks/use-toast";
 
@@ -32,6 +33,11 @@ export default function Categories() {
     festivalName?: string;
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalCategories = 10;
+  const totalPages = Math.ceil(totalCategories / itemsPerPage);
   const { toast } = useToast();
   
   const style = {
@@ -87,6 +93,26 @@ export default function Categories() {
                       data-testid="input-search-categories"
                     />
                   </div>
+                  <div className="flex items-center border rounded-md">
+                    <Button 
+                      variant={viewMode === "grid" ? "default" : "ghost"} 
+                      size="icon"
+                      onClick={() => setViewMode("grid")}
+                      className="rounded-r-none"
+                      data-testid="button-view-grid"
+                    >
+                      <Grid3x3 className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant={viewMode === "table" ? "default" : "ghost"} 
+                      size="icon"
+                      onClick={() => setViewMode("table")}
+                      className="rounded-l-none"
+                      data-testid="button-view-table"
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
                   <Button variant="outline" size="icon" data-testid="button-category-settings">
                     <Settings className="w-4 h-4" />
                   </Button>
@@ -108,13 +134,73 @@ export default function Categories() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Grid3x3 className="w-4 h-4" />
-                    <span>10 categories found</span>
+                    {viewMode === "grid" ? (
+                      <Grid3x3 className="w-4 h-4" />
+                    ) : (
+                      <List className="w-4 h-4" />
+                    )}
+                    <span>{totalCategories} categories found</span>
                   </div>
                   <AddCategoryDialog onAdd={handleAddCategory} />
                 </div>
                 
-                <CategoriesGrid onSelectCategory={handleSelectCategory} />
+                {viewMode === "grid" ? (
+                  <CategoriesGrid 
+                    onSelectCategory={handleSelectCategory}
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                  />
+                ) : (
+                  <CategoriesTable 
+                    onSelectCategory={handleSelectCategory}
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                  />
+                )}
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-4">
+                    <div className="text-sm text-muted-foreground">
+                      Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCategories)} of {totalCategories} categories
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        data-testid="button-prev-page"
+                      >
+                        <ChevronLeft className="w-4 h-4 mr-1" />
+                        Previous
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="w-9"
+                            data-testid={`button-page-${page}`}
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        data-testid="button-next-page"
+                      >
+                        Next
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </main>
