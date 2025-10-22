@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/AppSidebar";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -25,61 +28,79 @@ const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
+  
+  const style = {
+    "--sidebar-width": "16rem",
+    "--sidebar-width-icon": "3rem",
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold" data-testid="heading-settings">Settings</h1>
-          <p className="text-muted-foreground">Manage your account settings and preferences</p>
+    <SidebarProvider style={style as React.CSSProperties}>
+      <div className="flex h-screen w-full">
+        <AppSidebar activeItem="Settings" />
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <header className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger data-testid="button-sidebar-toggle" />
+              <div>
+                <h2 className="text-xl font-semibold">Settings</h2>
+                <p className="text-sm text-muted-foreground">Manage your account settings and preferences</p>
+              </div>
+            </div>
+            <ThemeToggle />
+          </header>
+          
+          <main className="flex-1 overflow-auto">
+            <div className="p-8 max-w-6xl mx-auto">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <TabsList className="grid w-full grid-cols-5" data-testid="tabs-settings">
+                  <TabsTrigger value="profile" data-testid="tab-profile">
+                    <User className="w-4 h-4 mr-2" />
+                    Profile
+                  </TabsTrigger>
+                  <TabsTrigger value="team" data-testid="tab-team">
+                    <Users className="w-4 h-4 mr-2" />
+                    Team
+                  </TabsTrigger>
+                  <TabsTrigger value="billing" data-testid="tab-billing">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Billing
+                  </TabsTrigger>
+                  <TabsTrigger value="notifications" data-testid="tab-notifications">
+                    <Bell className="w-4 h-4 mr-2" />
+                    Notifications
+                  </TabsTrigger>
+                  <TabsTrigger value="security" data-testid="tab-security">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Security
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="profile" className="space-y-6">
+                  <ProfileSettings />
+                </TabsContent>
+
+                <TabsContent value="team" className="space-y-6">
+                  <TeamSettings />
+                </TabsContent>
+
+                <TabsContent value="billing" className="space-y-6">
+                  <BillingSettings />
+                </TabsContent>
+
+                <TabsContent value="notifications" className="space-y-6">
+                  <NotificationSettings />
+                </TabsContent>
+
+                <TabsContent value="security" className="space-y-6">
+                  <SecuritySettings />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </main>
         </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5" data-testid="tabs-settings">
-            <TabsTrigger value="profile" data-testid="tab-profile">
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="team" data-testid="tab-team">
-              <Users className="w-4 h-4 mr-2" />
-              Team
-            </TabsTrigger>
-            <TabsTrigger value="billing" data-testid="tab-billing">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Billing
-            </TabsTrigger>
-            <TabsTrigger value="notifications" data-testid="tab-notifications">
-              <Bell className="w-4 h-4 mr-2" />
-              Notifications
-            </TabsTrigger>
-            <TabsTrigger value="security" data-testid="tab-security">
-              <Shield className="w-4 h-4 mr-2" />
-              Security
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="profile" className="space-y-6">
-            <ProfileSettings />
-          </TabsContent>
-
-          <TabsContent value="team" className="space-y-6">
-            <TeamSettings />
-          </TabsContent>
-
-          <TabsContent value="billing" className="space-y-6">
-            <BillingSettings />
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-6">
-            <NotificationSettings />
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-6">
-            <SecuritySettings />
-          </TabsContent>
-        </Tabs>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
 
