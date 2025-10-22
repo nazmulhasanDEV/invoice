@@ -146,7 +146,7 @@ export default function UploadAndPreview() {
             data-testid="input-file-upload-main"
           />
           <label htmlFor="file-upload-main">
-            <Button asChild size="sm" className="bg-chart-3 hover:bg-chart-3 text-background">
+            <Button asChild size="sm" variant="default">
               <span data-testid="button-browse">Browse Files</span>
             </Button>
           </label>
