@@ -1,8 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileDown, TrendingUp, TrendingDown } from "lucide-react";
+import { FileDown, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 import PriceChart from "./PriceChart";
+import SeasonalInsights from "./SeasonalInsights";
 
 const mockPurchaseHistory = [
   { date: "2024-12-15", vendor: "Fresh Farm Co", quantity: 50, unit: "kg", unitPrice: 2.5, total: 125 },
@@ -19,9 +20,10 @@ const vendorAnalysis = [
 
 interface CategoryDetailProps {
   categoryName?: string;
+  onBack?: () => void;
 }
 
-export default function CategoryDetail({ categoryName = "Tomatoes" }: CategoryDetailProps) {
+export default function CategoryDetail({ categoryName = "Tomatoes", onBack }: CategoryDetailProps) {
   const handleExport = () => {
     console.log("Exporting data to CSV");
   };
@@ -29,9 +31,21 @@ export default function CategoryDetail({ categoryName = "Tomatoes" }: CategoryDe
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">{categoryName}</h1>
-          <p className="text-muted-foreground">Complete purchase history and vendor analytics</p>
+        <div className="flex items-center gap-4">
+          {onBack && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              data-testid="button-back-categories"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{categoryName}</h1>
+            <p className="text-muted-foreground">Complete purchase history and analytics</p>
+          </div>
         </div>
         <Button 
           onClick={handleExport}
@@ -87,6 +101,8 @@ export default function CategoryDetail({ categoryName = "Tomatoes" }: CategoryDe
       <PriceChart title="Price Fluctuation Analysis" />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SeasonalInsights />
+
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4">Vendor Analysis</h3>
           <div className="space-y-3">
@@ -111,7 +127,9 @@ export default function CategoryDetail({ categoryName = "Tomatoes" }: CategoryDe
             ))}
           </div>
         </Card>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4">Recent Purchases</h3>
           <div className="space-y-3">
@@ -133,6 +151,54 @@ export default function CategoryDetail({ categoryName = "Tomatoes" }: CategoryDe
                 </div>
               </div>
             ))}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold mb-4">Quality Metrics</h3>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Consistency Score</span>
+                <span className="font-semibold">92%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-chart-1 to-chart-2" style={{ width: '92%' }} />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Price Stability</span>
+                <span className="font-semibold">85%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-chart-4" style={{ width: '85%' }} />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-muted-foreground">Availability</span>
+                <span className="font-semibold">98%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-chart-3" style={{ width: '98%' }} />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold">4.8</div>
+                  <div className="text-xs text-muted-foreground">Avg Rating</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold">12</div>
+                  <div className="text-xs text-muted-foreground">Vendors</div>
+                </div>
+              </div>
+            </div>
           </div>
         </Card>
       </div>
