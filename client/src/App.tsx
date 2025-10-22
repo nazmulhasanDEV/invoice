@@ -9,6 +9,7 @@ import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import UploadInvoice from "@/pages/UploadInvoice";
 import Categories from "@/pages/Categories";
+import Settings from "@/pages/Settings";
 
 function Router() {
   return (
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/upload" component={UploadInvoice} />
       <Route path="/categories" component={Categories} />
+      <Route path="/settings" component={Settings} />
       <Route component={NotFound} />
     </Switch>
   );
