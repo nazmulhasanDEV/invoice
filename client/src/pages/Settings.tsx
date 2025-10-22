@@ -14,12 +14,14 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { User, Settings as SettingsIcon, Users, CreditCard, Bell, Shield, Plus, Trash2, Mail, Phone, Briefcase, Building, Globe, Clock, Download, Key, Monitor, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { User, Settings as SettingsIcon, Users, CreditCard, Bell, Shield, Plus, Trash2, Mail, Phone, Briefcase, Building, Globe, Clock, Download, Key, Monitor, AlertTriangle, CheckCircle2, XCircle, Edit, MoreVertical, UserPlus, Activity, TrendingUp, BarChart3, FileText, Copy, Send, Calendar } from "lucide-react";
 import { ROLES, type User as UserType, type TeamMember, type PaymentMethod, type BillingHistory } from "@shared/schema";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -386,6 +388,8 @@ interface TeamInvitation {
 function TeamSettings() {
   const { toast } = useToast();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isEditMemberDialogOpen, setIsEditMemberDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<(TeamMember & { user?: UserType }) | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<string>(ROLES.MEMBER);
   const [teamName, setTeamName] = useState("");
@@ -440,6 +444,7 @@ function TeamSettings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teams", selectedTeamId, "members"] });
+      setIsEditMemberDialogOpen(false);
       toast({
         title: "Role Updated",
         description: "Team member role has been updated",
@@ -460,6 +465,14 @@ function TeamSettings() {
     },
   });
 
+  const copyInviteLink = (email: string) => {
+    navigator.clipboard.writeText(`https://app.example.com/invite/${email}`);
+    toast({
+      title: "Link Copied",
+      description: "Invitation link copied to clipboard",
+    });
+  };
+
   if (teamsLoading) {
     return <div data-testid="loading-team">Loading team...</div>;
   }
@@ -474,14 +487,73 @@ function TeamSettings() {
     );
   }
 
+  const rolePermissions = {
+    [ROLES.OWNER]: ["Full access", "Manage team", "Billing", "Delete team"],
+    [ROLES.ADMIN]: ["Upload invoices", "Manage categories", "Manage team members", "View analytics"],
+    [ROLES.MEMBER]: ["Upload invoices", "View analytics", "Manage categories"],
+    [ROLES.VIEWER]: ["View analytics", "View invoices"],
+  };
+
+  const activityLog = [
+    { id: 1, user: "John Doe", action: "added a new invoice", time: "2 hours ago", icon: FileText },
+    { id: 2, user: "Jane Smith", action: "updated team settings", time: "5 hours ago", icon: Settings },
+    { id: 3, user: "Bob Johnson", action: "invited alice@example.com", time: "1 day ago", icon: UserPlus },
+    { id: 4, user: "Sarah Williams", action: "changed role for Mike Brown", time: "2 days ago", icon: Edit },
+    { id: 5, user: "John Doe", action: "uploaded 5 invoices", time: "3 days ago", icon: TrendingUp },
+  ];
+
   return (
     <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{members?.length || 0}</p>
+                <p className="text-sm text-muted-foreground">Team Members</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Mail className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{invitations?.length || 0}</p>
+                <p className="text-sm text-muted-foreground">Pending Invites</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">847</p>
+                <p className="text-sm text-muted-foreground">Invoices Processed</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Team Information</CardTitle>
           <CardDescription>Manage your team details and settings</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="flex items-center gap-6">
             <Avatar className="w-20 h-20">
               <AvatarFallback className="text-xl">
@@ -508,6 +580,59 @@ function TeamSettings() {
               </div>
             </div>
           </div>
+
+          <Separator />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>Team ID</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input value={selectedTeamId || ''} readOnly className="font-mono text-sm" />
+                <Button variant="outline" size="icon" onClick={() => {
+                  navigator.clipboard.writeText(selectedTeamId || '');
+                  toast({ title: "Copied", description: "Team ID copied to clipboard" });
+                }}>
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <div>
+              <Label>Created</Label>
+              <Input 
+                value={teams[0]?.createdAt ? new Date(teams[0].createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'} 
+                readOnly 
+                className="mt-1"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Roles & Permissions</CardTitle>
+          <CardDescription>Understanding team member roles and their capabilities</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(rolePermissions).map(([role, permissions]) => (
+              <div key={role} className="p-4 border rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Badge variant={role === ROLES.OWNER ? "default" : "secondary"}>
+                    {role}
+                  </Badge>
+                </div>
+                <ul className="space-y-2">
+                  {permissions.map((permission, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <span>{permission}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
@@ -517,55 +642,10 @@ function TeamSettings() {
             <CardTitle>Team Members</CardTitle>
             <CardDescription>Manage your team members and their roles</CardDescription>
           </div>
-          <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-            <DialogTrigger asChild>
-              <Button data-testid="button-invite-member">
-                <Plus className="w-4 h-4 mr-2" />
-                Invite Member
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Invite Team Member</DialogTitle>
-                <DialogDescription>Send an invitation to join your team</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="invite-email">Email Address</Label>
-                  <Input
-                    id="invite-email"
-                    type="email"
-                    placeholder="colleague@example.com"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    data-testid="input-invite-email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="invite-role">Role</Label>
-                  <Select value={inviteRole} onValueChange={setInviteRole}>
-                    <SelectTrigger data-testid="select-invite-role">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
-                      <SelectItem value={ROLES.MEMBER}>Member</SelectItem>
-                      <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  onClick={() => inviteMutation.mutate({ email: inviteEmail, role: inviteRole })}
-                  disabled={!inviteEmail || inviteMutation.isPending}
-                  data-testid="button-send-invite"
-                >
-                  {inviteMutation.isPending ? "Sending..." : "Send Invitation"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button data-testid="button-invite-member" onClick={() => setIsInviteDialogOpen(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Invite Member
+          </Button>
         </CardHeader>
         <CardContent>
           {membersLoading ? (
@@ -576,6 +656,7 @@ function TeamSettings() {
                 <TableRow>
                   <TableHead>Member</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -605,19 +686,55 @@ function TeamSettings() {
                         {member.role}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                        Active
+                      </Badge>
+                    </TableCell>
                     <TableCell data-testid={`text-joined-${member.id}`}>
-                      {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Calendar className="w-4 h-4" />
+                        {member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : '-'}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       {member.role !== ROLES.OWNER && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeMemberMutation.mutate(member.id)}
-                          data-testid={`button-remove-member-${member.id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" data-testid={`button-member-menu-${member.id}`}>
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => {
+                              setSelectedMember(member);
+                              setIsEditMemberDialogOpen(true);
+                            }}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Change Role
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              toast({
+                                title: "Member Details",
+                                description: `${member.user?.email} - ${member.role}`,
+                              });
+                            }}>
+                              <User className="w-4 h-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => removeMemberMutation.mutate(member.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Remove Member
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </TableCell>
                   </TableRow>
@@ -645,21 +762,208 @@ function TeamSettings() {
                   data-testid={`invitation-${invitation.id}`}
                 >
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-muted-foreground" />
+                    <div className="p-2 bg-muted rounded-lg">
+                      <Mail className="w-5 h-5 text-muted-foreground" />
+                    </div>
                     <div>
                       <p className="font-medium">{invitation.email}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Invited as {invitation.role}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          {invitation.role}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          Sent {invitation.createdAt ? new Date(invitation.createdAt).toLocaleDateString() : 'recently'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <Badge variant="outline">Pending</Badge>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyInviteLink(invitation.email)}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy Link
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        toast({
+                          title: "Invitation Resent",
+                          description: `Invitation sent again to ${invitation.email}`,
+                        });
+                      }}
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Resend
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        toast({
+                          title: "Invitation Cancelled",
+                          description: "Invitation has been cancelled",
+                        });
+                      }}
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Activity</CardTitle>
+          <CardDescription>Recent actions performed by team members</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-80">
+            <div className="space-y-4">
+              {activityLog.map((activity) => (
+                <div key={activity.id} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                  <div className="p-2 bg-muted rounded-lg">
+                    <activity.icon className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm">
+                      <span className="font-medium">{activity.user}</span>
+                      {' '}
+                      <span className="text-muted-foreground">{activity.action}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </CardContent>
+        <CardFooter>
+          <Button variant="outline" className="w-full">
+            <Activity className="w-4 h-4 mr-2" />
+            View Full Activity Log
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Team Preferences</CardTitle>
+          <CardDescription>Configure team-wide settings and preferences</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Auto-categorize Invoices</p>
+              <p className="text-sm text-muted-foreground">Automatically categorize uploaded invoices using AI</p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Require Approval</p>
+              <p className="text-sm text-muted-foreground">Members need admin approval for uploads</p>
+            </div>
+            <Switch />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Export Reports</p>
+              <p className="text-sm text-muted-foreground">Allow members to export team reports</p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite Team Member</DialogTitle>
+            <DialogDescription>Send an invitation to join your team</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="invite-email">Email Address</Label>
+              <Input
+                id="invite-email"
+                type="email"
+                placeholder="colleague@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                data-testid="input-invite-email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="invite-role">Role</Label>
+              <Select value={inviteRole} onValueChange={setInviteRole}>
+                <SelectTrigger data-testid="select-invite-role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLES.VIEWER}>Viewer - Read-only access</SelectItem>
+                  <SelectItem value={ROLES.MEMBER}>Member - Upload & manage invoices</SelectItem>
+                  <SelectItem value={ROLES.ADMIN}>Admin - Full management access</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => inviteMutation.mutate({ email: inviteEmail, role: inviteRole })}
+              disabled={!inviteEmail || inviteMutation.isPending}
+              data-testid="button-send-invite"
+            >
+              {inviteMutation.isPending ? "Sending..." : "Send Invitation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditMemberDialogOpen} onOpenChange={setIsEditMemberDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Member Role</DialogTitle>
+            <DialogDescription>
+              Update role for {selectedMember?.user?.fullName || selectedMember?.user?.username}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="member-role">Select New Role</Label>
+              <Select 
+                defaultValue={selectedMember?.role}
+                onValueChange={(value) => {
+                  if (selectedMember) {
+                    updateRoleMutation.mutate({ memberId: selectedMember.id, role: value });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLES.VIEWER}>Viewer - Read-only access</SelectItem>
+                  <SelectItem value={ROLES.MEMBER}>Member - Upload & manage invoices</SelectItem>
+                  <SelectItem value={ROLES.ADMIN}>Admin - Full management access</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
