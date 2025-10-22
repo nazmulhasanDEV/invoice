@@ -1,6 +1,8 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import UploadAndPreview from "@/components/UploadAndPreview";
+import CategoryManager from "@/components/CategoryManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function UploadInvoice() {
   const style = {
@@ -16,13 +18,30 @@ export default function UploadInvoice() {
           <header className="flex items-center gap-4 p-4 border-b">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
             <div>
-              <h2 className="text-xl font-semibold">Upload Invoice</h2>
-              <p className="text-sm text-muted-foreground">Upload and review invoice data extraction</p>
+              <h2 className="text-xl font-semibold">Invoice Processing</h2>
+              <p className="text-sm text-muted-foreground">Upload invoices and manage categories</p>
             </div>
           </header>
           
           <main className="flex-1 overflow-auto p-8">
-            <UploadAndPreview />
+            <Tabs defaultValue="upload" className="space-y-6">
+              <TabsList>
+                <TabsTrigger value="upload" data-testid="tab-upload-invoice">
+                  Upload & Preview
+                </TabsTrigger>
+                <TabsTrigger value="categories" data-testid="tab-manage-categories">
+                  Manage Categories
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="upload">
+                <UploadAndPreview />
+              </TabsContent>
+
+              <TabsContent value="categories">
+                <CategoryManager />
+              </TabsContent>
+            </Tabs>
           </main>
         </div>
       </div>
