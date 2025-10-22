@@ -83,6 +83,163 @@ export class MemStorage implements IStorage {
     this.billingHistory = new Map();
     this.notificationPreferences = new Map();
     this.securitySettings = new Map();
+    
+    // Seed demo data if in demo mode or development
+    if (process.env.AUTH_STRATEGY === "demo" || process.env.NODE_ENV === "development") {
+      this.seedDemoData();
+    }
+  }
+  
+  private seedDemoData() {
+    // Create demo user
+    const demoUser: User = {
+      id: "demo-user-001",
+      username: "demo_user",
+      email: "demo@example.com",
+      fullName: "Demo User",
+      avatarUrl: null,
+      bio: "Exploring the platform",
+      jobTitle: "Product Manager",
+      company: "Demo Corp",
+      phone: "+1 (555) 123-4567",
+      timezone: "America/New_York",
+      language: "en",
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      createdAt: new Date("2024-01-01"),
+      lastLogin: new Date(),
+    };
+    this.users.set(demoUser.id, demoUser);
+    
+    // Create demo team
+    const demoTeam: Team = {
+      id: "demo-team-001",
+      name: "Demo Team",
+      ownerId: demoUser.id,
+      createdAt: new Date("2024-01-01"),
+    };
+    this.teams.set(demoTeam.id, demoTeam);
+    
+    // Add demo user as team owner
+    const demoMember: TeamMember = {
+      id: "demo-member-001",
+      teamId: demoTeam.id,
+      userId: demoUser.id,
+      role: "OWNER",
+      joinedAt: new Date("2024-01-01"),
+    };
+    this.teamMembers.set(demoMember.id, demoMember);
+    
+    // Add additional demo team members
+    const additionalMembers = [
+      { id: "demo-member-002", name: "Jane Smith", email: "jane@example.com", role: "ADMIN" },
+      { id: "demo-member-003", name: "Bob Johnson", email: "bob@example.com", role: "MEMBER" },
+      { id: "demo-member-004", name: "Alice Williams", email: "alice@example.com", role: "VIEWER" },
+    ];
+    
+    additionalMembers.forEach((member, idx) => {
+      const userId = `demo-user-00${idx + 2}`;
+      const user: User = {
+        id: userId,
+        username: member.email.split('@')[0],
+        email: member.email,
+        fullName: member.name,
+        avatarUrl: null,
+        bio: null,
+        jobTitle: null,
+        company: null,
+        phone: null,
+        timezone: null,
+        language: null,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        createdAt: new Date("2024-01-15"),
+        lastLogin: new Date(),
+      };
+      this.users.set(userId, user);
+      
+      const teamMember: TeamMember = {
+        id: member.id,
+        teamId: demoTeam.id,
+        userId: userId,
+        role: member.role,
+        joinedAt: new Date("2024-01-15"),
+      };
+      this.teamMembers.set(teamMember.id, teamMember);
+    });
+    
+    // Add demo invitations
+    const demoInvitation: TeamInvitation = {
+      id: "demo-invitation-001",
+      teamId: demoTeam.id,
+      email: "pending@example.com",
+      role: "MEMBER",
+      token: "demo-token-001",
+      invitedBy: demoUser.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      createdAt: new Date(),
+    };
+    this.teamInvitations.set(demoInvitation.id, demoInvitation);
+    
+    // Add demo notification preferences
+    const demoNotifPrefs: NotificationPreferences = {
+      userId: demoUser.id,
+      emailNotifications: true,
+      invoiceAlerts: true,
+      seasonalAlerts: true,
+      teamNotifications: true,
+      billingAlerts: true,
+      productUpdates: false,
+      pushNotifications: true,
+      smsNotifications: false,
+      securityAlerts: true,
+      digestFrequency: "daily",
+    };
+    this.notificationPreferences.set(demoUser.id, demoNotifPrefs);
+    
+    // Add demo security settings
+    const demoSecSettings: SecuritySettings = {
+      userId: demoUser.id,
+      twoFactorEnabled: false,
+      recoveryEmail: "recovery@example.com",
+      sessionTimeout: 30,
+    };
+    this.securitySettings.set(demoUser.id, demoSecSettings);
+    
+    // Add demo payment method
+    const demoPaymentMethod: PaymentMethod = {
+      id: "demo-payment-001",
+      userId: demoUser.id,
+      type: "card",
+      last4: "4242",
+      brand: "Visa",
+      expiryMonth: 12,
+      expiryYear: 2025,
+      isDefault: true,
+      createdAt: new Date("2024-01-01"),
+    };
+    this.paymentMethods.set(demoPaymentMethod.id, demoPaymentMethod);
+    
+    // Add demo billing history
+    const billingRecords = [
+      { id: "bill-001", amount: 2999, description: "Pro Plan - Monthly", date: new Date("2024-10-01"), status: "paid" as const },
+      { id: "bill-002", amount: 2999, description: "Pro Plan - Monthly", date: new Date("2024-09-01"), status: "paid" as const },
+      { id: "bill-003", amount: 2999, description: "Pro Plan - Monthly", date: new Date("2024-08-01"), status: "paid" as const },
+    ];
+    
+    billingRecords.forEach((record) => {
+      const billingRecord: BillingHistory = {
+        id: record.id,
+        userId: demoUser.id,
+        amount: record.amount,
+        currency: "usd",
+        description: record.description,
+        status: record.status,
+        invoiceUrl: `https://invoices.example.com/${record.id}`,
+        createdAt: record.date,
+      };
+      this.billingHistory.set(record.id, billingRecord);
+    });
   }
 
   // User methods

@@ -47,9 +47,35 @@ const addPaymentMethodSchema = z.object({
   paymentMethodId: z.string().min(1, "Payment method ID is required"),
 });
 
-// Auth middleware
+// Demo mode user - consistent across all requests
+const DEMO_USER: User = {
+  id: "demo-user-001",
+  username: "demo_user",
+  email: "demo@example.com",
+  fullName: "Demo User",
+  bio: "Exploring the platform",
+  jobTitle: "Product Manager",
+  company: "Demo Corp",
+  phone: "+1 (555) 123-4567",
+  timezone: "America/New_York",
+  language: "en",
+  createdAt: new Date("2024-01-01"),
+};
+
+// Auth middleware with demo mode support
 function requireAuth(req: Request, res: Response, next: NextFunction) {
-  if (!req.isAuthenticated()) {
+  // Check if demo mode is enabled (default to demo mode for now)
+  const isDemoMode = process.env.AUTH_STRATEGY === "demo" || process.env.NODE_ENV === "development";
+  
+  if (isDemoMode) {
+    // Inject demo user and mock authentication
+    req.user = DEMO_USER;
+    req.isAuthenticated = () => true;
+    return next();
+  }
+  
+  // Standard authentication check
+  if (!req.isAuthenticated || !req.isAuthenticated()) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   next();
