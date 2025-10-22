@@ -494,17 +494,9 @@ function TeamSettings() {
     [ROLES.VIEWER]: ["View analytics", "View invoices"],
   };
 
-  const activityLog = [
-    { id: 1, user: "John Doe", action: "added a new invoice", time: "2 hours ago", icon: FileText },
-    { id: 2, user: "Jane Smith", action: "updated team settings", time: "5 hours ago", icon: Settings },
-    { id: 3, user: "Bob Johnson", action: "invited alice@example.com", time: "1 day ago", icon: UserPlus },
-    { id: 4, user: "Sarah Williams", action: "changed role for Mike Brown", time: "2 days ago", icon: Edit },
-    { id: 5, user: "John Doe", action: "uploaded 5 invoices", time: "3 days ago", icon: TrendingUp },
-  ];
-
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -528,20 +520,6 @@ function TeamSettings() {
               <div>
                 <p className="text-2xl font-bold">{invitations?.length || 0}</p>
                 <p className="text-sm text-muted-foreground">Pending Invites</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <BarChart3 className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">847</p>
-                <p className="text-sm text-muted-foreground">Invoices Processed</p>
               </div>
             </div>
           </CardContent>
@@ -818,40 +796,6 @@ function TeamSettings() {
           </CardContent>
         </Card>
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Activity</CardTitle>
-          <CardDescription>Recent actions performed by team members</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-80">
-            <div className="space-y-4">
-              {activityLog.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-4 pb-4 border-b last:border-0">
-                  <div className="p-2 bg-muted rounded-lg">
-                    <activity.icon className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm">
-                      <span className="font-medium">{activity.user}</span>
-                      {' '}
-                      <span className="text-muted-foreground">{activity.action}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-        <CardFooter>
-          <Button variant="outline" className="w-full">
-            <Activity className="w-4 h-4 mr-2" />
-            View Full Activity Log
-          </Button>
-        </CardFooter>
-      </Card>
 
       <Card>
         <CardHeader>
