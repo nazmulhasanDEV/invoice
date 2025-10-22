@@ -5,6 +5,8 @@ import { FileDown, TrendingUp, TrendingDown, ArrowLeft } from "lucide-react";
 import PriceChart from "./PriceChart";
 import SeasonalInsights from "./SeasonalInsights";
 import VendorAnalysis from "./VendorAnalysis";
+import SeasonalAlert from "./SeasonalAlert";
+import SeasonalBadge, { SeasonType } from "./SeasonalBadge";
 
 const mockPurchaseHistory = [
   { date: "2024-12-15", vendor: "Fresh Farm Co", quantity: 50, unit: "kg", unitPrice: 2.5, total: 125 },
@@ -22,9 +24,16 @@ const vendorAnalysis = [
 interface CategoryDetailProps {
   categoryName?: string;
   onBack?: () => void;
+  season?: SeasonType;
+  festivalName?: string;
 }
 
-export default function CategoryDetail({ categoryName = "Tomatoes", onBack }: CategoryDetailProps) {
+export default function CategoryDetail({ 
+  categoryName = "Tomatoes", 
+  onBack,
+  season = "summer",
+  festivalName
+}: CategoryDetailProps) {
   const handleExport = () => {
     console.log("Exporting data to CSV");
   };
@@ -44,7 +53,10 @@ export default function CategoryDetail({ categoryName = "Tomatoes", onBack }: Ca
             </Button>
           )}
           <div>
-            <h1 className="text-3xl font-bold mb-2">{categoryName}</h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold">{categoryName}</h1>
+              <SeasonalBadge season={season} festivalName={festivalName} size="lg" />
+            </div>
             <p className="text-muted-foreground">Complete purchase history and analytics</p>
           </div>
         </div>
@@ -100,6 +112,10 @@ export default function CategoryDetail({ categoryName = "Tomatoes", onBack }: Ca
       </div>
 
       <PriceChart title="Price Fluctuation Analysis" />
+
+      {(season === "festival" || season !== "year-round") && (
+        <SeasonalAlert />
+      )}
 
       <div>
         <h2 className="text-2xl font-bold mb-4">Vendor Analysis</h2>

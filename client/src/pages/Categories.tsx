@@ -6,9 +6,28 @@ import AppSidebar from "@/components/AppSidebar";
 import CategoriesGrid from "@/components/CategoriesGrid";
 import CategoryDetail from "@/components/CategoryDetail";
 import { Search, Grid3x3, Settings } from "lucide-react";
+import { SeasonType } from "@/components/SeasonalBadge";
+
+const categorySeasons: Record<string, { season: SeasonType; festivalName?: string }> = {
+  "Tomatoes": { season: "summer" },
+  "Onions": { season: "year-round" },
+  "Milk": { season: "year-round" },
+  "Chicken Breast": { season: "year-round" },
+  "Rice": { season: "year-round" },
+  "Potatoes": { season: "fall" },
+  "Christmas Decorations": { season: "festival", festivalName: "Christmas" },
+  "Pumpkins": { season: "festival", festivalName: "Halloween" },
+  "Turkey": { season: "festival", festivalName: "Thanksgiving" },
+  "Strawberries": { season: "spring" },
+};
 
 export default function Categories() {
-  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string } | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<{ 
+    id: string; 
+    name: string;
+    season: SeasonType;
+    festivalName?: string;
+  } | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
   const style = {
@@ -17,7 +36,8 @@ export default function Categories() {
   };
 
   const handleSelectCategory = (id: string, name: string) => {
-    setSelectedCategory({ id, name });
+    const seasonData = categorySeasons[name] || { season: "year-round" as SeasonType };
+    setSelectedCategory({ id, name, ...seasonData });
   };
 
   const handleBackToGrid = () => {
@@ -64,7 +84,9 @@ export default function Categories() {
           <main className="flex-1 overflow-auto p-8">
             {selectedCategory ? (
               <CategoryDetail 
-                categoryName={selectedCategory.name} 
+                categoryName={selectedCategory.name}
+                season={selectedCategory.season}
+                festivalName={selectedCategory.festivalName}
                 onBack={handleBackToGrid}
               />
             ) : (
@@ -72,7 +94,7 @@ export default function Categories() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Grid3x3 className="w-4 h-4" />
-                    <span>8 categories found</span>
+                    <span>10 categories found</span>
                   </div>
                 </div>
                 

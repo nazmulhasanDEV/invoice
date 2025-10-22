@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown, ChevronRight, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
+import SeasonalBadge, { SeasonType } from "./SeasonalBadge";
 
 interface Category {
   id: string;
@@ -12,17 +13,21 @@ interface Category {
   avgPrice: number;
   priceChange: number;
   lastPurchase: string;
+  season: SeasonType;
+  festivalName?: string;
 }
 
 const mockCategories: Category[] = [
-  { id: "1", name: "Tomatoes", itemCount: 25, totalSpent: 2150, avgPrice: 2.65, priceChange: 8, lastPurchase: "2024-12-15" },
-  { id: "2", name: "Onions", itemCount: 18, totalSpent: 890, avgPrice: 1.95, priceChange: -3, lastPurchase: "2024-12-14" },
-  { id: "3", name: "Milk", itemCount: 32, totalSpent: 1280, avgPrice: 1.25, priceChange: 5, lastPurchase: "2024-12-15" },
-  { id: "4", name: "Chicken Breast", itemCount: 15, totalSpent: 3200, avgPrice: 8.75, priceChange: 12, lastPurchase: "2024-12-12" },
-  { id: "5", name: "Rice", itemCount: 22, totalSpent: 1540, avgPrice: 3.45, priceChange: -2, lastPurchase: "2024-12-10" },
-  { id: "6", name: "Potatoes", itemCount: 20, totalSpent: 720, avgPrice: 1.80, priceChange: 4, lastPurchase: "2024-12-13" },
-  { id: "7", name: "Bread", itemCount: 28, totalSpent: 980, avgPrice: 2.15, priceChange: 6, lastPurchase: "2024-12-15" },
-  { id: "8", name: "Eggs", itemCount: 30, totalSpent: 1620, avgPrice: 4.50, priceChange: 10, lastPurchase: "2024-12-14" },
+  { id: "1", name: "Tomatoes", itemCount: 25, totalSpent: 2150, avgPrice: 2.65, priceChange: 8, lastPurchase: "2024-12-15", season: "summer" },
+  { id: "2", name: "Onions", itemCount: 18, totalSpent: 890, avgPrice: 1.95, priceChange: -3, lastPurchase: "2024-12-14", season: "year-round" },
+  { id: "3", name: "Milk", itemCount: 32, totalSpent: 1280, avgPrice: 1.25, priceChange: 5, lastPurchase: "2024-12-15", season: "year-round" },
+  { id: "4", name: "Chicken Breast", itemCount: 15, totalSpent: 3200, avgPrice: 8.75, priceChange: 12, lastPurchase: "2024-12-12", season: "year-round" },
+  { id: "5", name: "Rice", itemCount: 22, totalSpent: 1540, avgPrice: 3.45, priceChange: -2, lastPurchase: "2024-12-10", season: "year-round" },
+  { id: "6", name: "Potatoes", itemCount: 20, totalSpent: 720, avgPrice: 1.80, priceChange: 4, lastPurchase: "2024-12-13", season: "fall" },
+  { id: "7", name: "Christmas Decorations", itemCount: 8, totalSpent: 480, avgPrice: 12.50, priceChange: 25, lastPurchase: "2023-12-10", season: "festival", festivalName: "Christmas" },
+  { id: "8", name: "Pumpkins", itemCount: 12, totalSpent: 360, avgPrice: 5.50, priceChange: 15, lastPurchase: "2024-10-28", season: "festival", festivalName: "Halloween" },
+  { id: "9", name: "Turkey", itemCount: 4, totalSpent: 520, avgPrice: 45.00, priceChange: 18, lastPurchase: "2023-11-22", season: "festival", festivalName: "Thanksgiving" },
+  { id: "10", name: "Strawberries", itemCount: 18, totalSpent: 720, avgPrice: 4.20, priceChange: 10, lastPurchase: "2024-06-15", season: "spring" },
 ];
 
 interface CategoriesGridProps {
@@ -49,7 +54,10 @@ export default function CategoriesGrid({ onSelectCategory }: CategoriesGridProps
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </div>
 
-            <h3 className="text-xl font-bold mb-1">{category.name}</h3>
+            <div className="mb-3">
+              <h3 className="text-xl font-bold mb-2">{category.name}</h3>
+              <SeasonalBadge season={category.season} festivalName={category.festivalName} size="sm" />
+            </div>
             <p className="text-xs text-muted-foreground mb-4">
               {category.itemCount} purchases
             </p>
