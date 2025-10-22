@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Sparkles, TrendingUp, LogIn } from "lucide-react";
 import heroImage from "@assets/generated_images/AI_invoice_dashboard_hero_background_b30c793b.png";
 import AuthModal from "./AuthModal";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Hero() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -42,15 +43,18 @@ export default function Hero() {
           </div>
           <span className="text-xl font-bold">InvoiceAI</span>
         </div>
-        <Button 
-          variant="outline" 
-          className="backdrop-blur-md bg-background/10 border"
-          onClick={handleLogin}
-          data-testid="button-login-hero"
-        >
-          <LogIn className="w-4 h-4 mr-2" />
-          Login
-        </Button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Button 
+            variant="outline" 
+            className="backdrop-blur-md bg-background/10 border"
+            onClick={handleLogin}
+            data-testid="button-login-hero"
+          >
+            <LogIn className="w-4 h-4 mr-2" />
+            Login
+          </Button>
+        </div>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">

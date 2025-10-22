@@ -9,6 +9,7 @@ import CategoryDetail from "@/components/CategoryDetail";
 import RecentInvoices from "@/components/RecentInvoices";
 import TopVendors from "@/components/TopVendors";
 import SpendingTrends from "@/components/SpendingTrends";
+import ThemeToggle from "@/components/ThemeToggle";
 import { Upload } from "lucide-react";
 
 export default function Dashboard() {
@@ -48,14 +49,17 @@ export default function Dashboard() {
               <SidebarTrigger data-testid="button-sidebar-toggle" />
               <h2 className="text-xl font-semibold">Dashboard Overview</h2>
             </div>
-            <Button 
-              onClick={handleUploadClick}
-              className="bg-chart-3 hover:bg-chart-3 text-background"
-              data-testid="button-upload-invoice-header"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Invoice
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button 
+                onClick={handleUploadClick}
+                className="bg-chart-3 hover:bg-chart-3 text-background"
+                data-testid="button-upload-invoice-header"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Invoice
+              </Button>
+            </div>
           </header>
           
           <main className="flex-1 overflow-auto">
