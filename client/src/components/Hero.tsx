@@ -1,10 +1,21 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Sparkles, TrendingUp } from "lucide-react";
+import { Upload, Sparkles, TrendingUp, LogIn } from "lucide-react";
 import heroImage from "@assets/generated_images/AI_invoice_dashboard_hero_background_b30c793b.png";
+import AuthModal from "./AuthModal";
 
 export default function Hero() {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<"login" | "register">("register");
+
   const handleGetStarted = () => {
-    console.log("Get Started clicked");
+    setAuthTab("register");
+    setAuthModalOpen(true);
+  };
+
+  const handleLogin = () => {
+    setAuthTab("login");
+    setAuthModalOpen(true);
   };
 
   const handleViewDemo = () => {
@@ -22,6 +33,24 @@ export default function Hero() {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-background"></div>
+      </div>
+
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-6">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-md bg-gradient-to-br from-chart-1 to-chart-2 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-xl font-bold">InvoiceAI</span>
+        </div>
+        <Button 
+          variant="outline" 
+          className="backdrop-blur-md bg-background/10 border"
+          onClick={handleLogin}
+          data-testid="button-login-hero"
+        >
+          <LogIn className="w-4 h-4 mr-2" />
+          Login
+        </Button>
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
@@ -77,6 +106,12 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
+        defaultTab={authTab}
+      />
     </section>
   );
 }
