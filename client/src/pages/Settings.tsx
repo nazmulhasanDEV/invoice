@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { User, Settings as SettingsIcon, Users, CreditCard, Bell, Shield, Plus, Trash2, Mail, Phone, Briefcase, Building, Globe, Clock, Download, Key, Monitor, AlertTriangle, CheckCircle2, XCircle, Edit, MoreVertical, UserPlus, Activity, TrendingUp, BarChart3, FileText, Copy, Send, Calendar } from "lucide-react";
+// import { ROLES, type User as UserType, type TeamMember, type PaymentMethod, type BillingHistory } from "@shared/schema";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
